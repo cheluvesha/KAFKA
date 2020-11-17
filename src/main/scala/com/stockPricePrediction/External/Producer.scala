@@ -3,6 +3,9 @@ package com.stockPricePrediction.External
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import spray.json.JsValue
 
+/***
+  * Producer Class responsible for sending data to Kafka topic
+  */
 object Producer {
 
   /***
