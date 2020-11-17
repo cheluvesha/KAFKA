@@ -12,6 +12,10 @@ import org.apache.spark.sql.types.DoubleType
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.scalatest.FunSuite
 
+/***
+  * Test Class for StockPricePredictionDStream class
+  * Extends FunSuite Scala-Test Api
+  */
 class StockPredictionTest extends FunSuite {
   val spark: SparkSession = UtilityClass.createSparkSessionObj("Test")
   val jsonString =
@@ -21,6 +25,12 @@ class StockPredictionTest extends FunSuite {
   val castedDF: DataFrame = castingDataTypeOfDataFrame(createDF(jsonString))
   val wrongDataFrame: DataFrame = castingDataFrame(createDF(wrongJson))
   val script = "./src/test/Resources/StockPricePrediction.py"
+
+  /***
+    * Creates DataFrame To Test
+    * @param jsonString String
+    * @return DataFrame
+    */
   def createDF(jsonString: String): DataFrame = {
     import spark.implicits._
     val jsonDataFrame = spark.read
@@ -32,6 +42,12 @@ class StockPredictionTest extends FunSuite {
       .withColumnRenamed("5. volume", "Volume")
     jsonDataFrame
   }
+
+  /***
+    * Cast the DataTypes of DataFrame
+    * @param inputDataFrame DataFrame
+    * @return DataFrame
+    */
   def castingDataFrame(
       inputDataFrame: DataFrame
   ): DataFrame = {
@@ -43,6 +59,12 @@ class StockPredictionTest extends FunSuite {
     )
     castedDataFrame
   }
+
+  /***
+    * Creates Predicted DataFrame to Test
+    * @param inputDataFrame - DataFrame
+    * @return DataFrame
+    */
   def trainAndPredictPrice(inputDataFrame: DataFrame): DataFrame = {
     val appToBePiped = "python3 " + script
     val predictedPriceRDD =
@@ -57,6 +79,7 @@ class StockPredictionTest extends FunSuite {
       inputDataFrame.withColumn("PredictedPrice", lit(scaledPredictedPrice))
     predictedColumnDataFrame
   }
+
   test("givenJsonStringMustCreateDataFrameAndItHasToBeEqual") {
     val dataFrame = creatingDataFrameFromJsonString(jsonString)
     val jsonDataFrame = createDF(jsonString)

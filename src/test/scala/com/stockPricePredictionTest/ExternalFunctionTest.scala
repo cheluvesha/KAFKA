@@ -9,6 +9,10 @@ import com.stockPricePrediction.External.UtilityClass.createProducer
 import org.apache.spark.sql.SparkSession
 import org.scalatest.FunSuite
 
+/***
+  * Test Class for External Package
+  * Extends FunSuite Scala-Test Api
+  */
 class ExternalFunctionTest extends FunSuite {
   val sparkSession: SparkSession = SparkSession
     .builder()

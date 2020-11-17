@@ -3,6 +3,13 @@ package com.stockPricePredictionTest
 import org.apache.spark.sql.DataFrame
 
 object DataFrameComparison {
+
+  /***
+    * Compares Two DataFrames
+    * @param actual DataFrame
+    * @param expected DataFrame
+    * @return Boolean
+    */
   def compareDataFrame(actual: DataFrame, expected: DataFrame): Boolean = {
     if (
       actual.schema
