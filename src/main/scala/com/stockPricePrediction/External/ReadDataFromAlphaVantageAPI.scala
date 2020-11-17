@@ -4,8 +4,16 @@ import org.apache.http.client.methods.HttpGet
 import org.apache.http.impl.client.DefaultHttpClient
 import spray.json._
 
+/***
+  * Class connects to Alpha Vantage Api to fetch http response
+  */
 object ReadDataFromAlphaVantageAPI {
 
+  /***
+    * method gets data from API in the form of http response
+    * @param url String
+    * @return String
+    */
   def getApiContent(url: String): String = {
     try {
       val httpClient = new DefaultHttpClient()
@@ -29,6 +37,11 @@ object ReadDataFromAlphaVantageAPI {
     }
   }
 
+  /***
+    * method parse the String data to JSON using Spray Json
+    * @param data String
+    * @return Map[String, JsValue]
+    */
   def parseDataToJson(data: String): Map[String, JsValue] = {
     try {
       val jsonStockData = data.parseJson
