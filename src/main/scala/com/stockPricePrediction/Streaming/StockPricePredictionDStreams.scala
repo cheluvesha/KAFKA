@@ -17,6 +17,8 @@ import org.apache.spark.streaming.kafka010.{
 }
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
+import scala.reflect.io.File
+
 /***
   * Class performs Spark Streaming and Predicts Price for Stock data
   */
@@ -25,7 +27,7 @@ object StockPricePredictionDStreams {
     UtilityClass.createSparkSessionObj("StockPricePrediction")
   val sparkContextObj: SparkContext = spark.sparkContext
   val streamingContext = new StreamingContext(sparkContextObj, Seconds(5))
-  val script: String = System.getenv("PY_FILE")
+  val script: String = "./src/test/Resources/StockPricePrediction.py"
 
   /***
     *  creates Direct Stream by Subscribing to kafka topic
@@ -69,6 +71,16 @@ object StockPricePredictionDStreams {
   }
 
   /***
+    * checks Whether File is Presents in the path
+    * @param scriptPath String
+    * @return Boolean
+    */
+  def checkScriptPath(scriptPath: String): Boolean = {
+    val file = File(scriptPath)
+    if (file.exists) true else false
+  }
+
+  /***
     * Loads Python Model and Pipe it to Produce Predict price
     * @param inputDataFrame DataFrame
     * @param script String
@@ -79,26 +91,31 @@ object StockPricePredictionDStreams {
       script: String
   ): DataFrame = {
     try {
-      val appToBePiped =
-        "python3 " + script
-      val predictedPriceRDD =
-        inputDataFrame.rdd
-          .repartition(1)
-          .pipe(appToBePiped)
-      val predictedPrice = predictedPriceRDD.collect().apply(0)
-      // scale up the value
-      val scaledPredictedPrice = BigDecimal(predictedPrice)
-        .setScale(2, BigDecimal.RoundingMode.HALF_UP)
-        .toDouble
-      // appends the Predicted column to DataFrame
-      val predictedColumnDataFrame =
-        inputDataFrame.withColumn("PredictedPrice", lit(scaledPredictedPrice))
-      predictedColumnDataFrame.printSchema()
-      predictedColumnDataFrame.show(10)
-      predictedColumnDataFrame
+      val status = checkScriptPath(script)
+      if (status) {
+        val appToBePiped =
+          "python3 " + script
+        val predictedPriceRDD =
+          inputDataFrame.rdd
+            .repartition(1)
+            .pipe(appToBePiped)
+        val predictedPrice = predictedPriceRDD.collect().apply(0)
+        // scale up the value
+        val scaledPredictedPrice = BigDecimal(predictedPrice)
+          .setScale(2, BigDecimal.RoundingMode.HALF_UP)
+          .toDouble
+        // appends the Predicted column to DataFrame
+        val predictedColumnDataFrame =
+          inputDataFrame.withColumn("PredictedPrice", lit(scaledPredictedPrice))
+        predictedColumnDataFrame.printSchema()
+        predictedColumnDataFrame.show(10)
+        predictedColumnDataFrame
+      } else {
+        throw new FileNotFoundException()
+      }
     } catch {
-      case fileNotFound: FileNotFoundException =>
-        fileNotFound.printStackTrace()
+      case ex: Exception =>
+        ex.printStackTrace()
         throw new Exception("File Not Found")
     }
   }

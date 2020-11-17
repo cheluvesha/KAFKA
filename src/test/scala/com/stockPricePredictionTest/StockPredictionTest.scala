@@ -25,6 +25,7 @@ class StockPredictionTest extends FunSuite {
   val castedDF: DataFrame = castingDataTypeOfDataFrame(createDF(jsonString))
   val wrongDataFrame: DataFrame = castingDataFrame(createDF(wrongJson))
   val script = "./src/test/Resources/StockPricePrediction.py"
+  val wrongScript = "a.txt"
 
   /***
     * Creates DataFrame To Test
@@ -112,4 +113,12 @@ class StockPredictionTest extends FunSuite {
     val result = compareDataFrame(dataFramePredicted, testDataFrame)
     assert(result === false)
   }
+
+  test("givenWrongScriptPathShouldThrowAnException") {
+    val thrown = intercept[Exception] {
+      loadModelAndPredictPrice(castedDF, wrongScript)
+    }
+    assert(thrown.getMessage === "File Not Found")
+  }
+
 }
