@@ -17,12 +17,22 @@ import org.apache.spark.streaming.kafka010.{
 }
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
+/***
+  * Class performs Spark Streaming and Predicts Price for Stock data
+  */
 object StockPricePredictionDStreams {
   val spark: SparkSession =
     UtilityClass.createSparkSessionObj("StockPricePrediction")
   val sparkContextObj: SparkContext = spark.sparkContext
   val streamingContext = new StreamingContext(sparkContextObj, Seconds(5))
   val script: String = System.getenv("PY_FILE")
+
+  /***
+    *  creates Direct Stream by Subscribing to kafka topic
+    * @param topics String
+    * @param kafkaParams Map[String, Object]
+    * @return InputDStream[ConsumerRecord[String, String]
+    */
   def creatingDStream(
       topics: String,
       kafkaParams: Map[String, Object]
@@ -36,6 +46,10 @@ object StockPricePredictionDStreams {
     messages
   }
 
+  /***
+    * Predicts Stock Close Price by passing Consumer Data
+    * @param messages InputDStream[ConsumerRecord[String, String]
+    */
   def predictStockClosePrice(
       messages: InputDStream[ConsumerRecord[String, String]]
   ): Unit = {
@@ -45,11 +59,21 @@ object StockPricePredictionDStreams {
     )
   }
 
+  /***
+    * Predicts Close Price From Passing RDD data
+    * @param inputRDD RDD[String]
+    */
   def predictClosePriceFromEachRDD(inputRDD: RDD[String]): Unit = {
     val jsonStrings = inputRDD.collect()
     jsonStrings.foreach { jsonString => fetchPredictedPrice(jsonString) }
   }
 
+  /***
+    * Loads Python Model and Pipe it to Produce Predict price
+    * @param inputDataFrame DataFrame
+    * @param script String
+    * @return DataFrame
+    */
   def loadModelAndPredictPrice(
       inputDataFrame: DataFrame,
       script: String
@@ -62,9 +86,11 @@ object StockPricePredictionDStreams {
           .repartition(1)
           .pipe(appToBePiped)
       val predictedPrice = predictedPriceRDD.collect().apply(0)
+      // scale up the value
       val scaledPredictedPrice = BigDecimal(predictedPrice)
         .setScale(2, BigDecimal.RoundingMode.HALF_UP)
         .toDouble
+      // appends the Predicted column to DataFrame
       val predictedColumnDataFrame =
         inputDataFrame.withColumn("PredictedPrice", lit(scaledPredictedPrice))
       predictedColumnDataFrame.printSchema()
@@ -77,6 +103,11 @@ object StockPricePredictionDStreams {
     }
   }
 
+  /***
+    * casts the DataType of DataFrame
+    * @param inputDataFrame DataFrame
+    * @return DataFrame
+    */
   def castingDataTypeOfDataFrame(
       inputDataFrame: DataFrame
   ): DataFrame = {
@@ -89,6 +120,11 @@ object StockPricePredictionDStreams {
     castedDataFrame
   }
 
+  /***
+    * Creates DataFrame From Json String Data
+    * @param jsonString String
+    * @return DataFrame
+    */
   def creatingDataFrameFromJsonString(jsonString: String): DataFrame = {
     import spark.implicits._
     val jsonDataFrame = spark.read
@@ -101,6 +137,10 @@ object StockPricePredictionDStreams {
     jsonDataFrame
   }
 
+  /***
+    * Delegates and calls respective functions to Process and Predict the Stock Price
+    * @param jsonString String
+    */
   def fetchPredictedPrice(jsonString: String): Unit = {
     val jsonDataFrame = creatingDataFrameFromJsonString(jsonString)
     val castedDF = castingDataTypeOfDataFrame(jsonDataFrame)
@@ -113,6 +153,9 @@ object StockPricePredictionDStreams {
       )
   }
 
+  /***
+    * Entry point to Streaming context
+    */
   def startStreaming(): Unit = {
     streamingContext.start()
     streamingContext.awaitTermination()
