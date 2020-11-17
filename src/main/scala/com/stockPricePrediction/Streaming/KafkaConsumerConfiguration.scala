@@ -4,6 +4,13 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 
 object KafkaConsumerConfiguration {
+
+  /***
+    * Configures Kafka Consumer
+    * @param brokers  String
+    * @param groupId  String
+    * @return Map[String, Object]
+    */
   def configureKafka(brokers: String, groupId: String): Map[String, Object] = {
     val kafkaParams = Map[String, Object](
       ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG -> brokers,
