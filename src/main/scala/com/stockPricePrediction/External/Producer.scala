@@ -5,6 +5,13 @@ import spray.json.JsValue
 
 object Producer {
 
+  /***
+    * Sends Data to Kafka Topic
+    * @param topic String
+    * @param dataToBePassed Map[String, JsValue]
+    * @param kafkaProducer KafkaProducer[String, String]
+    * @return Int
+    */
   def sendingDataToKafkaTopic(
       topic: String,
       dataToBePassed: Map[String, JsValue],
