@@ -4,7 +4,9 @@ import com.stockPricePrediction.External.Producer.sendingDataToKafkaTopic
 import com.stockPricePrediction.External.ReadDataFromAlphaVantageAPI.parseDataToJson
 import com.stockPricePrediction.External.UtilityClass.createProducer
 import com.stockPricePrediction.External.{
+  Configuration,
   ReadDataFromAlphaVantageAPI,
+  S3Upload,
   UtilityClass
 }
 import com.stockPricePrediction.Streaming.StockPricePredictionDStreams.{
@@ -29,6 +31,8 @@ object DriverClass extends App {
       companyName + "&apikey=" + apiKey
   val broker = "localhost:9092"
   val groupId = "Group1"
+  val filePath = "./src/test/PredictedResult"
+  val bucketToUpload = "stream-stock-price"
   val contentData = ReadDataFromAlphaVantageAPI.getApiContent(url)
   val parsedData = parseDataToJson(contentData)
   val createdProducer = createProducer(broker)
@@ -42,5 +46,12 @@ object DriverClass extends App {
   val messages = creatingDStream(topic, kafkaParams)
   predictStockClosePrice(messages)
   startStreaming()
-
+  val s3Config = Configuration.hadoopAwsConfiguration()
+  val s3UploadStatus =
+    S3Upload.uploadPredictedFileToS3(filePath, bucketToUpload)
+  if (s3Config == 1 && s3UploadStatus == 1) {
+    println("File Uploaded SuccessFully")
+  } else {
+    println("File Upload is Failed")
+  }
 }
