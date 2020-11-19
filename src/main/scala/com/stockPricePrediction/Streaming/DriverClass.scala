@@ -23,14 +23,14 @@ import com.stockPricePrediction.Streaming.StockPricePredictionDStreams.{
 object DriverClass extends App {
   val sparkSession =
     UtilityClass.createSparkSessionObj("Stock-Price-Prediction")
-  val topic = "StockPricePrediction"
+  val topic = System.getenv("TOPIC")
   val apiKey: String = System.getenv("API_KEY")
   val companyName: String = "GOOG"
   val url: String =
     "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&interval=1min&symbol=" +
       companyName + "&apikey=" + apiKey
-  val broker = "localhost:9092"
-  val groupId = "Group1"
+  val broker = System.getenv("BROKER")
+  val groupId = System.getenv("GROUPID")
   val filePath = "./src/test/PredictedResult"
   val bucketToUpload = "stream-stock-price"
   val contentData = ReadDataFromAlphaVantageAPI.getApiContent(url)
