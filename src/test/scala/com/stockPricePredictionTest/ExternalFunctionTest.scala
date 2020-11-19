@@ -1,7 +1,9 @@
 package com.stockPricePredictionTest
 
 import com.stockPricePrediction.External.{
+  Configuration,
   ReadDataFromAlphaVantageAPI,
+  S3Upload,
   UtilityClass
 }
 import com.stockPricePrediction.External.ReadDataFromAlphaVantageAPI.parseDataToJson
@@ -27,7 +29,7 @@ class ExternalFunctionTest extends FunSuite {
   val wrongUrl = "http://localhost:9000/"
   val jsonOutput =
     "(2020-11-13 14:28:00,{\"1. open\":\"1775.6700\",\"2. high\":\"1775.7100\",\"3. low\":\"1774.6700\",\"4. close\":\"1775.2400\",\"5. volume\":\"2953\"})"
-
+  val filePath = "./src/test/PredictedResult"
   test("givenSparkSessionObjectWhenReturnedTypeMustEqualToActual") {
     val spark: SparkSession = UtilityClass.createSparkSessionObj("Test")
     assert(sparkSession === spark)
@@ -59,11 +61,6 @@ class ExternalFunctionTest extends FunSuite {
     assert(jsMap != null)
   }
 
-  test("givenWhenDataShouldParseAndWhenComparedShouldNotEqual") {
-    val response = ReadDataFromAlphaVantageAPI.getApiContent(url)
-    val jsMap = parseDataToJson(response)
-    assert(jsMap.head != jsonOutput)
-  }
   test("givenWrongJsonFormatShouldThrowAnException") {
     val response = ""
     val thrown = intercept[Exception] {
@@ -77,4 +74,11 @@ class ExternalFunctionTest extends FunSuite {
     }
     assert(thrown.getMessage === "Unable to create kafka producer")
   }
+  test("givenFilesToUploadWhenItsDoneMustReturnInt") {
+    Configuration.hadoopAwsConfiguration()
+    val status =
+      S3Upload.uploadPredictedFileToS3(filePath, "cd-stock1")
+    assert(status === 1)
+  }
+
 }
