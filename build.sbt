@@ -24,4 +24,4 @@ libraryDependencies += "io.spray" %% "spray-json" % "1.3.5"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % Test
 
-libraryDependencies += "org.mockito" % "mockito-all" % "1.9.5" % Test
+libraryDependencies += "com.github.seratch" %% "awscala-s3" % "0.8.+"
