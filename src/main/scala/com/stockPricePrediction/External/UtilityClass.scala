@@ -1,7 +1,6 @@
 package com.stockPricePrediction.External
 
 import java.util.Properties
-
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.SparkSession
