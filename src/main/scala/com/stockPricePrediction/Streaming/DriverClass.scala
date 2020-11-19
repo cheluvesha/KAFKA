@@ -24,7 +24,7 @@ object DriverClass extends App {
   val sparkSession =
     UtilityClass.createSparkSessionObj("Stock-Price-Prediction")
   val topic = System.getenv("TOPIC")
-  val apiKey: String = System.getenv("API_KEY")
+  val apiKey: String = System.getenv("APIKEY")
   val companyName: String = "GOOG"
   val url: String =
     "https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&interval=1min&symbol=" +
