@@ -3,6 +3,14 @@ package com.stockPricePrediction.External
 import org.apache.spark.SparkContext
 
 object AWSConfiguration {
+
+  /***
+    * AWS S3 Connect Configuration
+    * @param awsAccessKeyID  String
+    * @param awsSecretAccessKey String
+    * @param sparkContextObj SparkContext
+    * @return Int
+    */
   def connectToS3(
       awsAccessKeyID: String,
       awsSecretAccessKey: String,
