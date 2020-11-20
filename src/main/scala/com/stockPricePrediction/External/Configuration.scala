@@ -19,5 +19,4 @@ object Configuration {
   def hadoopAwsConfiguration(): Int = {
     connectToS3(awsAccessKeyID, awsSecretAccessKey, sparkContext)
   }
-
 }
