@@ -77,7 +77,7 @@ class ExternalFunctionTest extends FunSuite {
   test("givenFilesToUploadWhenItsDoneMustReturnInt") {
     Configuration.hadoopAwsConfiguration()
     val status =
-      S3Upload.uploadPredictedFileToS3(filePath, "cd-stock1")
+      S3Upload.uploadPredictedFileToS3(filePath, "cd-stock-test")
     assert(status === 1)
   }
 
